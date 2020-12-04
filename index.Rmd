@@ -253,14 +253,14 @@ Row {data-width=400}
 ```{r}
 paleta_azul <- colorBin(palette = "Blues", 
                         domain = sf_general_distritos_ultima_fecha$positivos,
-                        bins = 10
+                        bins = 5
 )
 leaflet_distritos_positivos <- leaflet(sf_general_distritos_ultima_fecha) %>% 
   fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
   addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
   addPolygons(fillColor = ~paleta_azul(positivos), stroke=T, fillOpacity = 1,
               color="black", weight=0.2, opacity= 0.5,
-              group = "Cantones",
+              group = "Distritos",
               popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
                             "Cantón: ", sf_general_distritos_ultima_fecha$canton, "<br>",
                             "Distrito: ", sf_general_distritos_ultima_fecha$distrito, "<br>",
@@ -269,12 +269,13 @@ leaflet_distritos_positivos <- leaflet(sf_general_distritos_ultima_fecha) %>%
   ) %>%
   addLegend("bottomright", pal = paleta_azul, values = ~positivos,
             title = "Casos positivos",
-            opacity = 1
+            opacity = 1,
+            group = "Distritos"
   ) %>%  
   addLayersControl(
     baseGroups = c("OpenStreetMap"),
-    overlayGroups = c("Cantones"),
-    options = layersControlOptions(collapsed = TRUE)    
+    overlayGroups = c("Distritos"),
+    options = layersControlOptions(collapsed = TRUE)
   ) %>%  
   addMiniMap(
     toggleDisplay = TRUE,
@@ -297,12 +298,13 @@ top_n(n = 10, wt = positivos)
 df_distritos_positivos <- data.frame("Categorie"=rownames(df_distritos_positivos), df_distritos_positivos)
 
 
-data <- df_distritos_positivos[c('Categorie', 'positivos'),]
+data <- df_distritos_positivos[,c('distrito', 'positivos')]
 
-fig <- plot_ly(data, labels = ~Categorie, values = ~positivos, type = 'pie')
+fig <- plot_ly(data, labels = ~distrito, values = ~positivos, type = 'pie')
 fig <- fig %>% layout(title = 'Casos positivos por distrito',
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 
 fig
 ```
+
