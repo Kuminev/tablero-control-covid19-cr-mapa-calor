@@ -217,7 +217,7 @@ gauge(UCI, min = 0, max = 100, symbol = '%', gaugeSectors(
 Row {data-height=100}
 -----------------------------------------------------------------------
 
-### Tabla de cantidades de casos en cantones
+### Tabla de cantidades de casos
 ```{r}
 st_drop_geometry(sf_general_distritos_ultima_fecha) %>% 
   select(Provincia = provincia, Canton = canton, Distrito = distrito, Positivos = positivos, Recuperados = recuperados, Activos = activos, Fallecidos = fallecidos) %>%
@@ -226,3 +226,83 @@ st_drop_geometry(sf_general_distritos_ultima_fecha) %>%
                                language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
                 )
   )
+```
+
+Casos positivos
+=======================================================================
+  Row {data-height=1}
+-----------------------------------------------------------------------
+Datos al 17 de noviembre de 2020
+
+Row
+-----------------------------------------------------------------------
+  
+### Casos positivos {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark = ","), "", sep = " "), 
+         caption = "Total de casos positivos", 
+         icon = icono_positivos, 
+         color = color_positivos
+)
+```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+  
+### Mapa de casos positivos en distritos
+```{r}
+paleta_azul <- colorBin(palette = "Blues", 
+                        domain = sf_general_distritos_ultima_fecha$positivos,
+                        bins = 10
+)
+leaflet_distritos_positivos <- leaflet(sf_general_distritos_ultima_fecha) %>% 
+  fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addPolygons(fillColor = ~paleta_azul(positivos), stroke=T, fillOpacity = 1,
+              color="black", weight=0.2, opacity= 0.5,
+              group = "Cantones",
+              popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
+                            "Cantón: ", sf_general_distritos_ultima_fecha$canton, "<br>",
+                            "Distrito: ", sf_general_distritos_ultima_fecha$distrito, "<br>",
+                            "Positivos: ", sf_general_distritos_ultima_fecha$positivos
+              )
+  ) %>%
+  addLegend("bottomright", pal = paleta_azul, values = ~positivos,
+            title = "Casos positivos",
+            opacity = 1
+  ) %>%  
+  addLayersControl(
+    baseGroups = c("OpenStreetMap"),
+    overlayGroups = c("Cantones"),
+    options = layersControlOptions(collapsed = TRUE)    
+  ) %>%  
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft",
+    tiles = providers$OpenStreetMap.Mapnik
+  )%>%
+  addScaleBar("bottomleft")
+
+# Despliegue del mapa
+leaflet_distritos_positivos
+```
+
+### Gráfico de distritos con mayor cantidad de casos positivos
+```{r}
+df_distritos_positivos <- (df_general_distritos_ultima_fecha) %>%
+mutate(distritos= factor (positivos, levels = sort(unique(df_general_distritos_ultima_fecha$positivos)))) %>%
+top_n(n = 10, wt = positivos)
+
+
+df_distritos_positivos <- data.frame("Categorie"=rownames(df_distritos_positivos), df_distritos_positivos)
+
+
+data <- df_distritos_positivos[c('Categorie', 'positivos'),]
+
+fig <- plot_ly(data, labels = ~Categorie, values = ~positivos, type = 'pie')
+fig <- fig %>% layout(title = 'Casos positivos por distrito',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+fig
+```
