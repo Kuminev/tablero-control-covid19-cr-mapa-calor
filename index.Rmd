@@ -26,7 +26,7 @@ color_recuperados <- 'green'
 color_fallecidos <- 'violet'
 color_nuevos_positivos <- 'yellow'
 color_hospitalizados <- 'pink'
-color_salon <- 'yellow'
+color_salon <- 'orange'
 color_uci <- 'red'
 #--------------------- Íconos ---------------------
 icono_positivos <- 'fas fa-plus'
@@ -137,7 +137,7 @@ Row {data-height=10}
 -----------------------------------------------------------------------
 **Situación nacional al 17 de noviembre de 2020 con base en los datos publicados por el Ministerio de Salud de Costa Rica en ---> (http://geovision.uned.ac.cr/oges/)**
 
-Row {data-height=10}
+Row {data-height=50}
 -----------------------------------------------------------------------
 
 ### Casos positivos {.value-box}
@@ -181,3 +181,48 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$fallecidos, big.mark 
          color = color_fallecidos
 )
 ```
+
+Row {data-height=85}
+-----------------------------------------------------------------------
+  
+### Hospitalizados {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$hospital, big.mark = ","), "", sep = " "), 
+         caption = "Total de hospitalizados", 
+         icon = icono_hospitalizados,
+         color = color_hospitalizados
+)
+```
+
+### En salón {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$salon, big.mark = ","), " (",
+                       round(100 * df_general_pais_ultima_fecha$salon / df_general_pais_ultima_fecha$hospital, 1), 
+                       "%)", sep = ""), 
+         caption = "Hospitalizados en salón",
+         icon = icono_salon, 
+         color = color_salon
+)
+```
+
+### En UCI {.gauge}
+```{r}
+UCI <- ((df_general_pais_ultima_fecha$UCI / 359)* 100)
+
+gauge(UCI, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(0, 39), warning = c(40, 79), danger = c(80, 100)
+))
+```
+
+Row {data-height=100}
+-----------------------------------------------------------------------
+
+### Tabla de cantidades de casos en cantones
+```{r}
+st_drop_geometry(sf_general_distritos_ultima_fecha) %>% 
+  select(Provincia = provincia, Canton = canton, Distrito = distrito, Positivos = positivos, Recuperados = recuperados, Activos = activos, Fallecidos = fallecidos) %>%
+  DT::datatable(rownames = FALSE,
+                options = list(searchHighlight = TRUE, 
+                               language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+                )
+  )
