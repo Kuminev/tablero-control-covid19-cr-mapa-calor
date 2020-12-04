@@ -26,7 +26,7 @@ color_recuperados <- 'green'
 color_fallecidos <- 'violet'
 color_nuevos_positivos <- 'yellow'
 color_hospitalizados <- 'pink'
-color_salon <- 'orange'
+color_salon <- 'yellow'
 color_uci <- 'red'
 #--------------------- Íconos ---------------------
 icono_positivos <- 'fas fa-plus'
@@ -36,6 +36,7 @@ icono_fallecidos <- 'fas fa-user-minus'
 
 icono_nuevos_positivos <- 'fas fa-user-md'
 
+icono_hospitalizados_totales <- 'fas fa-building'
 icono_hospitalizados <- 'fas fa-hospital'
 icono_salon <- 'fas fa-bed'
 icono_uci <- 'fas fa-heartbeat'
