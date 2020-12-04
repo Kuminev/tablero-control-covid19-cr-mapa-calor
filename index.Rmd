@@ -1,5 +1,6 @@
 ---
-title: "Estado del COVID-19 en Costa Rica"
+title: "Trabjo final"
+author: "Lic. Fernando Bermúdez Kuminev"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
@@ -19,23 +20,25 @@ library(sf)
 library(leaflet)
 library(leaflet.extras)
 #-------------------- Colores ---------------------
-color_positivos <- 'blue'
-color_activos <- 'red'
+color_positivos <- 'brown'
+color_activos <- 'blue'
 color_recuperados <- 'green'
 color_fallecidos <- 'violet'
-color_nuevos_positivos <- 'pink'
+color_nuevos_positivos <- 'yellow'
 color_hospitalizados <- 'pink'
-color_salon <- 'pink'
-color_uci <- 'pink'
+color_salon <- 'orange'
+color_uci <- 'red'
 #--------------------- Íconos ---------------------
-icono_positivos <- 'fas fa-user-md'
-icono_activos <- 'fas fa-user-md'
-icono_recuperados <- 'fas fa-user-md'
-icono_fallecidos <- 'fas fa-user-md'
+icono_positivos <- 'fas fa-plus'
+icono_activos <- 'fas fa-font'
+icono_recuperados <- 'fas fa-grin-beam-sweat'
+icono_fallecidos <- 'fas fa-user-minus'
+
 icono_nuevos_positivos <- 'fas fa-user-md'
-icono_hospitalizados <- 'fas fa-user-md'
-icono_salon <- 'fas fa-user-md'
-icono_uci <- 'fas fa-user-md'
+
+icono_hospitalizados <- 'fas fa-hospital'
+icono_salon <- 'fas fa-bed'
+icono_uci <- 'fas fa-heartbeat'
 #--------------- Otros parámetros -----------------
 # Separador para lectura de datos CSV
 caracter_separador <- ','
@@ -44,7 +47,7 @@ caracter_separador <- ','
 
 ```{r, include=FALSE}
 #--------------- Archivos de datos ----------------
-archivo_general_pais <- 'https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/covid19/ms/11_17_CSV_GENERAL.csv'
+archivo_general_pais <- "https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/covid19/ms/11_17_CSV_GENERAL.csv"
 archivo_positivos_cantones <- 'https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/covid19/ms/11_17_CSV_POSITIVOS.csv'
 archivo_activos_cantones <- 'https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/covid19/ms/11_17_CSV_ACTIVOS.csv'
 archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/covid19/ms/11_10_CSV_RECUP.csv'
@@ -56,7 +59,7 @@ archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/pf0953-program
 # Data frame de datos generales por país
 df_general_pais <- read.csv(archivo_general_pais, sep = caracter_separador)
 df_general_pais$FECHA <- as.Date(df_general_pais$FECHA, "%d/%m/%Y")
-# Data frame de datos generales por país en la última fecha
+# Data frame de datos generales del país en la última fecha
 df_general_pais_ultima_fecha <- 
   df_general_pais %>%
   filter(FECHA == max(FECHA, na.rm = TRUE))
@@ -115,9 +118,9 @@ df_general_distritos_ultima_fecha$fallecidos <- as.integer(df_general_distritos_
 df_general_distritos_ultima_fecha$activos <- as.integer(df_general_distritos_ultima_fecha$activos)
 # Objeto sf de distritos
 # Capa simplificada
-# sf_distritos <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_limite_distrital_ign_wgs84.geojson')
+sf_distritos <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_limite_distrital_ign_wgs84.geojson')
 # Capa detallada
-sf_distritos <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_distritos_ign_wgs84.geojson')
+# sf_distritos <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_distritos_ign_wgs84.geojson')
 # Objeto sf de casos positivos en distritos en la última fecha
 sf_general_distritos_ultima_fecha <-
   left_join(sf_distritos, df_general_distritos_ultima_fecha, by = c('provincia', 'canton', 'distrito'))
