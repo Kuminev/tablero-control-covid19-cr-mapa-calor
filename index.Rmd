@@ -291,29 +291,29 @@ leaflet_distritos_positivos
 ### Gráfico de distritos con mayor cantidad de casos positivos
 ```{r}
 
+df_distritos_positivos <- (df_general_distritos_ultima_fecha) %>%
+mutate(distritos= factor (positivos, levels = sort(unique(df_general_distritos_ultima_fecha$positivos)))) %>%
+top_n(n = 10, wt = positivos)
+
+
 df_distritos_positivos_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$positivos)), ]
 
 df_distritos_positivos_otros <- df_distritos_positivos_ord %>%
   slice(11:487) %>%
   select(distrito, positivos)
 
+# grafico pastel
+
+positivos <- data.frame("Distritos" = c ('Pavas', 'Uruca', 'Hatillo', 'San Francisco', 'Limon', 'San Sebastian', 'San Felipe', 'Alajuela', 'Hospial', 'San Rafael', 'Otros'), "Positivos"= c(5423, 2749, 2637, 2512, 2216, 2151, 2047, 1975, 1700, 1666, 99410))
+                        
+                        
+positivos <- data.frame("Categorie"=rownames(positivos), positivos)
 
 
-df_distritos_positivos <- (df_general_distritos_ultima_fecha) %>%
-mutate(distritos= factor (positivos, levels = sort(unique(df_general_distritos_ultima_fecha$positivos)))) %>%
-top_n(n = 10, wt = positivos)
+data <- positivos[,c('Distritos', 'Positivos')]
 
 
-df_distritos_positivos <- data.frame("Categorie"=rownames(df_distritos_positivos), df_distritos_positivos)
-
-
-data <- df_distritos_positivos[,c('distrito', 'positivos')]
-
-class(data$positivos)
-
-p <- data$
-
-fig <- plot_ly(data, labels = ~distrito, values = ~positivos, type = 'pie')
+fig <- plot_ly(data, labels = ~Distritos, values = ~Positivos, type = 'pie')
 fig <- fig %>% layout(title = 'Casos positivos por distrito',
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
@@ -321,3 +321,62 @@ fig <- fig %>% layout(title = 'Casos positivos por distrito',
 fig
 ```
 
+Casos recuperados
+=======================================================================
+  Row {data-height=1}
+-----------------------------------------------------------------------
+Datos al 17 de noviembre de 2020
+
+Row
+-----------------------------------------------------------------------
+  
+### Casos recuperados {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark = ","), "", sep = " "), 
+         caption = "Total de recuperados", 
+         icon = icono_recuperados, 
+         color = color_recuperados
+)
+```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+  
+### Mapa de casos recuperados en distritos
+```{r}
+paleta_verde <- colorBin(palette = "Greens", 
+                        domain = sf_general_distritos_ultima_fecha$recuperados,
+                        bins = 5
+)
+leaflet_distritos_recuperados <- leaflet(sf_general_distritos_ultima_fecha) %>% 
+  fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addPolygons(fillColor = ~paleta_verde(recuperados), stroke=T, fillOpacity = 1,
+              color="black", weight=0.2, opacity= 0.5,
+              group = "Distritos",
+              popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
+                            "Cantón: ", sf_general_distritos_ultima_fecha$canton, "<br>",
+                            "Distrito: ", sf_general_distritos_ultima_fecha$distrito, "<br>",
+                            "Positivos: ", sf_general_distritos_ultima_fecha$recuperados
+              )
+  ) %>%
+  addLegend("bottomright", pal = paleta_verde, values = ~recuperados,
+            title = "Casos recuperados",
+            opacity = 1,
+            group = "Distritos"
+  ) %>%  
+  addLayersControl(
+    baseGroups = c("OpenStreetMap"),
+    overlayGroups = c("Distritos"),
+    options = layersControlOptions(collapsed = TRUE)
+  ) %>%  
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft",
+    tiles = providers$OpenStreetMap.Mapnik
+  )%>%
+  addScaleBar("bottomleft")
+
+# Despliegue del mapa
+leaflet_distritos_recuperados
+```
