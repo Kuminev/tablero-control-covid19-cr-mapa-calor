@@ -290,6 +290,15 @@ leaflet_distritos_positivos
 
 ### Gráfico de distritos con mayor cantidad de casos positivos
 ```{r}
+
+df_distritos_positivos_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$positivos)), ]
+
+df_distritos_positivos_otros <- df_distritos_positivos_ord %>%
+  slice(11:487) %>%
+  select(distrito, positivos)
+
+
+
 df_distritos_positivos <- (df_general_distritos_ultima_fecha) %>%
 mutate(distritos= factor (positivos, levels = sort(unique(df_general_distritos_ultima_fecha$positivos)))) %>%
 top_n(n = 10, wt = positivos)
@@ -299,6 +308,10 @@ df_distritos_positivos <- data.frame("Categorie"=rownames(df_distritos_positivos
 
 
 data <- df_distritos_positivos[,c('distrito', 'positivos')]
+
+class(data$positivos)
+
+p <- data$
 
 fig <- plot_ly(data, labels = ~distrito, values = ~positivos, type = 'pie')
 fig <- fig %>% layout(title = 'Casos positivos por distrito',
