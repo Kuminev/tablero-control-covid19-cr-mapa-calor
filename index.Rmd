@@ -380,3 +380,58 @@ leaflet_distritos_recuperados <- leaflet(sf_general_distritos_ultima_fecha) %>%
 # Despliegue del mapa
 leaflet_distritos_recuperados
 ```
+
+### Gráfico de distritos con mayor cantidad de casos recuperados
+```{r}
+
+df_distritos_recuperados_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$recuperados)), ]
+
+df_distritos_recuperados <- (df_general_distritos_ultima_fecha) %>%
+mutate(distritos= factor (recuperados, levels = sort(unique(df_general_distritos_ultima_fecha$recuperados)))) %>%
+top_n(n = 10, wt = recuperados)
+
+
+df_distritos_recuperados_otros <- df_distritos_positivos_ord %>%
+  slice(11:487) %>%
+  select(distrito, recuperados)
+
+#r <- df_distritos_recuperados_otros %>%
+#summarize(recuperados = sum(recuperados, na.rm = TRUE))
+
+# grafico pastel
+
+
+recuperados<- data.frame("Distritos" = c ('San Felipe', 'Hatillo', 'Hospital', 'Pavas', 'San Sebastian', 'Uruca', 'Quesda', 'San Francisco', 'Barranca', 'Limón', 'Otros'), "Recuperados"= c(1429, 2347, 1431, 4837, 1815, 2008, 980, 1483, 1145, 1734, 58141))
+                        
+                        
+recuperados <- data.frame("Categorie"=rownames(recuperados), recuperados)
+
+
+data2 <- recuperados[,c('Distritos', 'Recuperados')]
+
+
+fig2 <- plot_ly(data2, labels = ~Distritos, values = ~Recuperados, type = 'pie')
+fig2_r <- fig2 %>% layout(title = 'Casos recuperados por distrito',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+fig2_r
+```
+
+Casos activos
+=======================================================================
+  Row {data-height=1}
+-----------------------------------------------------------------------
+Datos al 17 de noviembre de 2020
+
+Row
+-----------------------------------------------------------------------
+  
+### Casos activos {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = ","), "", sep = " "), 
+         caption = "Total de activos", 
+         icon = icono_activos, 
+         color = color_activos
+)
+```
