@@ -251,14 +251,15 @@ Row {data-width=400}
   
 ### Mapa de casos positivos en distritos
 ```{r}
-paleta_azul <- colorBin(palette = "Blues", 
+paleta_roja <- colorBin(palette = "Reds", 
                         domain = sf_general_distritos_ultima_fecha$positivos,
                         bins = 5
 )
+
 leaflet_distritos_positivos <- leaflet(sf_general_distritos_ultima_fecha) %>% 
   fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
   addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
-  addPolygons(fillColor = ~paleta_azul(positivos), stroke=T, fillOpacity = 1,
+  addPolygons(fillColor = ~paleta_roja(positivos), stroke=T, fillOpacity = 1,
               color="black", weight=0.2, opacity= 0.5,
               group = "Distritos",
               popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
@@ -267,7 +268,7 @@ leaflet_distritos_positivos <- leaflet(sf_general_distritos_ultima_fecha) %>%
                             "Positivos: ", sf_general_distritos_ultima_fecha$positivos
               )
   ) %>%
-  addLegend("bottomright", pal = paleta_azul, values = ~positivos,
+  addLegend("bottomright", pal = paleta_roja, values = ~positivos,
             title = "Casos positivos",
             opacity = 1,
             group = "Distritos"
@@ -420,7 +421,7 @@ fig2_r
 
 Casos activos
 =======================================================================
-  Row {data-height=1}
+Row {data-height=1}
 -----------------------------------------------------------------------
 Datos al 17 de noviembre de 2020
 
@@ -435,3 +436,44 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = "
          color = color_activos
 )
 ```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+  
+### Mapa de casos activos en distritos
+```{r}
+paleta_azul <- colorBin(palette = "Blues", 
+                        domain = sf_general_distritos_ultima_fecha$activos,
+                        bins = 5
+)
+leaflet_distritos_activos <- leaflet(sf_general_distritos_ultima_fecha) %>% 
+  fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addPolygons(fillColor = ~paleta_azul(activos), stroke=T, fillOpacity = 1,
+              color="black", weight=0.2, opacity= 0.5,
+              group = "Distritos",
+              popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
+                            "Cantón: ", sf_general_distritos_ultima_fecha$canton, "<br>",
+                            "Distrito: ", sf_general_distritos_ultima_fecha$distrito, "<br>",
+                            "Positivos: ", sf_general_distritos_ultima_fecha$activos
+              )
+  ) %>%
+  addLegend("bottomright", pal = paleta_azul, values = ~activos,
+            title = "Casos activos",
+            opacity = 1,
+            group = "Distritos"
+  ) %>%  
+  addLayersControl(
+    baseGroups = c("OpenStreetMap"),
+    overlayGroups = c("Distritos"),
+    options = layersControlOptions(collapsed = TRUE)
+  ) %>%  
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft",
+    tiles = providers$OpenStreetMap.Mapnik
+  )%>%
+  addScaleBar("bottomleft")
+
+# Despliegue del mapa
+leaflet_distritos_activos
