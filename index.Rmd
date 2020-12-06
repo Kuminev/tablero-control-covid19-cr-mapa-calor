@@ -23,7 +23,7 @@ library(leaflet.extras)
 color_positivos <- 'brown'
 color_activos <- 'blue'
 color_recuperados <- 'green'
-color_fallecidos <- 'violet'
+color_fallecidos <- 'grey'
 color_nuevos_positivos <- 'yellow'
 color_hospitalizados <- 'pink'
 color_salon <- 'orange'
@@ -427,8 +427,8 @@ Casos activos
 Row
 -----------------------------------------------------------------------
   
-  ### Casos activos {.value-box}
-  ```{r}
+### Casos activos {.value-box}
+```{r}
 valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = ","), "", sep = " "), 
          caption = "Total de activos", 
          icon = icono_activos, 
@@ -535,3 +535,53 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$fallecidos, big.mark 
          color = color_fallecidos
 )
 ```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+  
+### Mapa de casos fallecidos en distritos
+```{r}
+paleta_gris <- colorBin(palette = "Greys", 
+                        domain = sf_general_distritos_ultima_fecha$fallecidos,
+                        bins = 5
+)
+
+
+
+leaflet_distritos_fallecidos <- leaflet(sf_general_distritos_ultima_fecha) %>% 
+  fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
+  addPolygons(fillColor = ~paleta_gris(fallecidos), stroke=T, fillOpacity = 1,
+              color="black", weight=0.2, opacity= 0.5,
+              group = "Distritos",
+              popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
+                            "Cantón: ", sf_general_distritos_ultima_fecha$canton, "<br>",
+                            "Distrito: ", sf_general_distritos_ultima_fecha$distrito, "<br>",
+                            "Fallecidos: ", sf_general_distritos_ultima_fecha$activos
+              )
+  ) %>%
+  addLegend("bottomright", pal = paleta_gris, values = ~fallecidos,
+            title = "Casos fallecitos",
+            opacity = 1,
+            group = "Distritos"
+  ) %>%  
+  addLayersControl(
+    baseGroups = c("OpenStreetMap"),
+    overlayGroups = c("Distritos"),
+    options = layersControlOptions(collapsed = TRUE)
+  ) %>%  
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft"
+  )%>%
+  addScaleBar("bottomleft")
+
+
+leaflet_distritos_fallecidos
+
+```
+
+### Gráfico de distritos con mayor cantidad de casos fallecidos
+
+```{r}
+df_distritos_fallecidos_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$fallecidos)), ]
+
