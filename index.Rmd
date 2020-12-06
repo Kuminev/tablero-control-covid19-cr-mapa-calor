@@ -477,3 +477,6 @@ leaflet_distritos_activos <- leaflet(sf_general_distritos_ultima_fecha) %>%
 
 # Despliegue del mapa
 leaflet_distritos_activos
+
+```
+
