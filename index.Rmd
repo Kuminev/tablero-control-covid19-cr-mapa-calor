@@ -384,7 +384,6 @@ leaflet_distritos_recuperados
 
 ### Gráfico de distritos con mayor cantidad de casos recuperados
 ```{r}
-
 df_distritos_recuperados_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$recuperados)), ]
 
 df_distritos_recuperados <- (df_general_distritos_ultima_fecha) %>%
@@ -392,17 +391,17 @@ mutate(distritos= factor (recuperados, levels = sort(unique(df_general_distritos
 top_n(n = 10, wt = recuperados)
 
 
-df_distritos_recuperados_otros <- df_distritos_positivos_ord %>%
+df_distritos_recuperados_otros <- df_distritos_activos_ord %>%
   slice(11:487) %>%
   select(distrito, recuperados)
 
-#r <- df_distritos_recuperados_otros %>%
-#summarize(recuperados = sum(recuperados, na.rm = TRUE))
+# r <- df_distritos_recuperados_otros %>%
+# summarize(recuperados = sum(recuperados, na.rm = TRUE))
 
 # grafico pastel
 
 
-recuperados<- data.frame("Distritos" = c ('San Felipe', 'Hatillo', 'Hospital', 'Pavas', 'San Sebastian', 'Uruca', 'Quesda', 'San Francisco', 'Barranca', 'Limón', 'Otros'), "Recuperados"= c(1429, 2347, 1431, 4837, 1815, 2008, 980, 1483, 1145, 1734, 58141))
+recuperados<- data.frame("Distritos" = c ('San Felipe', 'Hatillo', 'Hospital', 'Pavas', 'San Sebastian', 'Uruca', 'Quesada', 'San Francisco', 'Barranca', 'Limón', 'Otros'), "Recuperados"= c(1429, 2347, 1431, 4837, 1815, 2008, 980, 1483, 1145, 1734, 69362))
                         
                         
 recuperados <- data.frame("Categorie"=rownames(recuperados), recuperados)
@@ -476,7 +475,46 @@ leaflet_distritos_activos <- leaflet(sf_general_distritos_ultima_fecha) %>%
   addScaleBar("bottomleft")
 
 # Despliegue del mapa
+
 leaflet_distritos_activos
 
 ```
 
+
+### Gráfico de distritos con mayor cantidad de casos activos
+```{r}
+
+df_distritos_activos_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$activos)), ]
+
+
+df_distritos_activos <- (df_general_distritos_ultima_fecha) %>%
+mutate(distritos= factor (activos, levels = sort(unique(df_general_distritos_ultima_fecha$activos)))) %>%
+top_n(n = 10, wt = activos)
+
+
+df_distritos_activos_otros <- df_distritos_activos_ord %>%
+  slice(11:487) %>%
+  select(distrito, activos)
+
+# a <- df_distritos_activos_otros %>%
+# summarize(activos = sum(activos, na.rm = TRUE))
+
+# grafico pastel
+
+
+activos<- data.frame("Distritos" = c ('Desamparados', 'San Miguel', 'Uruca', 'Alajuela', 'San Antonio', 'San José', 'San Rafael', 'San Francisco', 'Liberia', 'Chacarita', 'Otros'), "Activos"= c(642, 1028, 697, 1106, 627, 894, 901, 997, 928, 624, 37670))
+                        
+                        
+activos <- data.frame("Categorie"=rownames(activos), activos)
+
+
+data3 <- activos[,c('Distritos', 'Activos')]
+
+
+fig3 <- plot_ly(data3, labels = ~Distritos, values = ~Activos, type = 'pie')
+fig3_a <- fig3 %>% layout(title = 'Casos activos por distrito',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+fig3_a
+```
