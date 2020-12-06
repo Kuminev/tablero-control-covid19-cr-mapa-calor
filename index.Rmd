@@ -546,9 +546,8 @@ paleta_gris <- colorBin(palette = "Greys",
                         bins = 5
 )
 
-
-
-leaflet_distritos_fallecidos <- leaflet(sf_general_distritos_ultima_fecha) %>% 
+leaflet_distritos_fallecidos <- leaflet(sf_general_distritos_ultima_fecha) %>%  
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
   fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
   addPolygons(fillColor = ~paleta_gris(fallecidos), stroke=T, fillOpacity = 1,
               color="black", weight=0.2, opacity= 0.5,
@@ -556,7 +555,7 @@ leaflet_distritos_fallecidos <- leaflet(sf_general_distritos_ultima_fecha) %>%
               popup = paste("Provincia: ", sf_general_distritos_ultima_fecha$provincia, "<br>",
                             "Cantón: ", sf_general_distritos_ultima_fecha$canton, "<br>",
                             "Distrito: ", sf_general_distritos_ultima_fecha$distrito, "<br>",
-                            "Fallecidos: ", sf_general_distritos_ultima_fecha$activos
+                            "Fallecidos: ", sf_general_distritos_ultima_fecha$fallecidos
               )
   ) %>%
   addLegend("bottomright", pal = paleta_gris, values = ~fallecidos,
@@ -585,3 +584,34 @@ leaflet_distritos_fallecidos
 ```{r}
 df_distritos_fallecidos_ord <- df_general_distritos_ultima_fecha[with(df_general_distritos_ultima_fecha, order(-df_general_distritos_ultima_fecha$fallecidos)), ]
 
+df_distritos_fallecidos <- (df_distritos_fallecidos_ord) %>%
+  mutate(distritos= factor (fallecidos, levels = sort(unique(df_distritos_fallecidos_ord$fallecidos)))) %>%
+  top_n(n = 10, wt = fallecidos)
+
+
+df_distritos_fallecidos_otros <- df_distritos_fallecidos_ord %>%
+  slice(11:487) %>%
+  select(distrito, fallecidos)
+
+f <- df_distritos_fallecidos_otros %>%
+summarize(fallecidos = sum(fallecidos, na.rm = TRUE))
+
+# grafico pastel
+
+
+fallecidos<- data.frame("Distritos" = c ('Pavas', 'Hatillo', 'Uruca', 'Alajuela', 'Desamparados', 'Hospital', 'San Francisco', 'San Sebastian', 'Limon', 'San Felipe', 'Otros'), "Fallecidos"= c(54, 50, 44, 44, 38, 38, 32, 31, 24, 21,1200))
+
+
+Fallecidos <- data.frame("Categorie"=rownames(fallecidos), fallecidos)
+
+
+data4 <- Fallecidos[,c('Distritos', 'Fallecidos')]
+
+
+fig4 <- plot_ly(data4, labels = ~Distritos, values = ~Fallecidos, type = 'pie')
+fig4_a <- fig4 %>% layout(title = 'Casos fallecidos por distrito',
+                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+fig4_a
+```
